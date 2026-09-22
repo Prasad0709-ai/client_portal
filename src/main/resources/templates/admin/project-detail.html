@@ -1,0 +1,467 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title th:text="${project.title} + ' | Management Workspace'">Project Management</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        body { font-family: 'Inter', sans-serif; }
+    </style>
+</head>
+<body class="bg-slate-950 text-slate-100 flex min-h-screen overflow-x-hidden">
+
+    <!-- Modular Sidebar -->
+    <div th:replace="~{layout/sidebar :: sidebar('admin_dashboard')}"></div>
+
+    <!-- Main Content -->
+    <main class="flex-1 flex flex-col min-w-0 overflow-y-auto bg-slate-950">
+
+        <!-- Top Header Bar -->
+        <header class="h-16 px-8 border-b border-slate-800 flex items-center justify-between bg-slate-900/60 backdrop-blur-md sticky top-0 z-20">
+            <div class="flex items-center gap-3">
+                <a th:href="@{/admin/dashboard}" class="p-2 text-slate-400 hover:text-white rounded-lg hover:bg-slate-800 transition">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18" />
+                    </svg>
+                </a>
+                <div>
+                    <h1 class="text-base font-bold text-white tracking-tight" th:text="${project.title}">Project Title</h1>
+                    <p class="text-xs text-slate-400">Client: <span class="text-sky-400 font-semibold" th:text="${project.client.company}">Company</span> &bull; <span th:text="${project.client.name}">Client Name</span></p>
+                </div>
+            </div>
+            <div class="flex items-center gap-2">
+                <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold border"
+                      th:classappend="${project.status.badgeClass}"
+                      th:text="${project.status.displayName}">
+                    Status
+                </span>
+                <a th:href="@{/admin/projects/{id}/edit(id=${project.id})}"
+                   class="inline-flex items-center gap-1.5 px-3 py-1.5 bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs font-semibold rounded-lg border border-slate-700 transition">
+                    <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                    </svg>
+                    <span>Edit Scope</span>
+                </a>
+            </div>
+        </header>
+
+        <div class="p-8 space-y-8 flex-1">
+
+            <!-- Alerts -->
+            <div th:if="${successMessage}" class="p-4 bg-emerald-500/10 border border-emerald-500/30 rounded-xl text-emerald-400 text-sm flex items-center gap-3">
+                <svg class="w-5 h-5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
+                <span th:text="${successMessage}">Success message</span>
+            </div>
+
+            <div th:if="${errorMessage}" class="p-4 bg-rose-500/10 border border-rose-500/30 rounded-xl text-rose-400 text-sm flex items-center gap-3">
+                <svg class="w-5 h-5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
+                <span th:text="${errorMessage}">Error message</span>
+            </div>
+
+            <!-- Project Progress & Overview Card -->
+            <section class="bg-slate-900/90 border border-slate-800/90 rounded-2xl p-6 shadow-xl">
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                    <div class="md:col-span-2 space-y-3">
+                        <h2 class="text-sm font-semibold uppercase tracking-wider text-slate-400">Project Description &amp; Scope</h2>
+                        <p class="text-sm text-slate-300 leading-relaxed" th:text="${project.description}">
+                            Detailed project scope and requirements.
+                        </p>
+                        <div class="flex items-center gap-6 pt-2 text-xs text-slate-400">
+                            <div><span class="text-slate-500">Timeline:</span> <span class="font-mono text-slate-300" th:text="${project.startDate} + ' &rarr; ' + ${project.endDate}"></span></div>
+                            <div><span class="text-slate-500">Assigned Client:</span> <span class="text-sky-400 font-medium" th:text="${project.client.name}"></span></div>
+                        </div>
+                    </div>
+                    <div class="p-4 bg-slate-950/60 border border-slate-800 rounded-xl flex flex-col justify-center">
+                        <div class="flex justify-between items-baseline mb-2">
+                            <span class="text-xs font-semibold text-slate-400 uppercase tracking-wider">Milestone Progress</span>
+                            <span class="text-xl font-bold text-white font-mono" th:text="${project.progressPercentage} + '%'">50%</span>
+                        </div>
+                        <div class="w-full bg-slate-800 h-2.5 rounded-full overflow-hidden mb-2">
+                            <div class="bg-gradient-to-r from-sky-500 to-emerald-500 h-full transition-all" th:style="'width: ' + ${project.progressPercentage} + '%;'"></div>
+                        </div>
+                        <div class="text-[11px] text-slate-400 text-right" th:text="${project.completedMilestonesCount} + ' of ' + ${project.totalMilestonesCount} + ' milestones completed'">
+                            2 of 4 milestones completed
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Predictive Delivery Forecasting & AI Risk Advice Card -->
+            <section class="bg-gradient-to-r from-slate-900 via-slate-900 to-purple-950/30 border border-purple-500/20 rounded-2xl p-6 shadow-xl">
+                <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-4 pb-4 border-b border-slate-800">
+                    <div class="flex items-center gap-3">
+                        <div class="w-8 h-8 rounded-lg bg-purple-500/10 text-purple-400 flex items-center justify-center">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z" />
+                            </svg>
+                        </div>
+                        <div>
+                            <h3 class="text-sm font-bold text-white tracking-tight">Predictive Delivery &amp; Risk Analytics</h3>
+                            <p class="text-xs text-slate-400">Statistical forecasting model evaluating milestone velocity and deadline slippage</p>
+                        </div>
+                    </div>
+                    <div class="flex items-center gap-2">
+                        <span class="text-xs text-slate-400">Risk Assessment:</span>
+                        <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-bold border font-mono"
+                              th:classappend="${forecast.riskBadgeClass}"
+                              th:text="${forecast.riskLevel}">
+                            MODERATE
+                        </span>
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-4">
+                    <div class="p-3 bg-slate-950/60 border border-slate-800 rounded-xl">
+                        <div class="text-[11px] font-semibold text-slate-400 uppercase">Target Delivery</div>
+                        <div class="text-sm font-bold text-white font-mono mt-1" th:text="${forecast.targetEndDate != null ? forecast.targetEndDate : 'Open'}">2026-10-30</div>
+                        <div class="text-[10px] text-slate-500 mt-0.5">Contractual baseline</div>
+                    </div>
+
+                    <div class="p-3 bg-slate-950/60 border border-slate-800 rounded-xl">
+                        <div class="text-[11px] font-semibold text-slate-400 uppercase">ML Projected Delivery</div>
+                        <div class="text-sm font-bold text-sky-400 font-mono mt-1" th:text="${forecast.projectedEndDate}">2026-11-05</div>
+                        <div class="text-[10px] text-slate-500 mt-0.5">Based on cadence rate</div>
+                    </div>
+
+                    <div class="p-3 bg-slate-950/60 border border-slate-800 rounded-xl">
+                        <div class="text-[11px] font-semibold text-slate-400 uppercase">Slippage Variance</div>
+                        <div class="text-sm font-bold font-mono mt-1"
+                             th:classappend="${forecast.slippageDays > 0} ? 'text-rose-400' : 'text-emerald-400'"
+                             th:text="${forecast.slippageDays > 0} ? '+' + ${forecast.slippageDays} + ' days delay' : (${forecast.slippageDays == 0} ? 'On Schedule' : ${#numbers.formatInteger(-forecast.slippageDays, 0)} + ' days ahead')">
+                            +6 days delay
+                        </div>
+                        <div class="text-[10px] text-slate-500 mt-0.5">Variance vs target</div>
+                    </div>
+
+                    <div class="p-3 bg-slate-950/60 border border-slate-800 rounded-xl">
+                        <div class="text-[11px] font-semibold text-slate-400 uppercase">Milestone Cadence</div>
+                        <div class="text-sm font-bold text-white font-mono mt-1" th:text="${forecast.milestoneVelocityDays} + ' days/milestone'">15.0 days/milestone</div>
+                        <div class="text-[10px] text-slate-500 mt-0.5">Historical burn velocity</div>
+                    </div>
+                </div>
+
+                <!-- AI Recommendation Banner -->
+                <div class="p-3.5 bg-slate-950/80 border border-slate-800 rounded-xl flex items-start gap-3">
+                    <svg class="w-4 h-4 text-purple-400 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z" />
+                    </svg>
+                    <div>
+                        <div class="text-xs font-semibold text-purple-300">Automated Delivery Advice</div>
+                        <p class="text-xs text-slate-300 mt-0.5" th:text="${forecast.recommendation}">AI recommendation guidance</p>
+                    </div>
+                </div>
+            </section>
+
+            <!-- 2-Column Grid for Milestones & Documents -->
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+
+                <!-- 1. Milestone Management Module -->
+                <section class="bg-slate-900/90 border border-slate-800/90 rounded-2xl shadow-xl p-6 flex flex-col">
+                    <div class="flex items-center justify-between mb-5">
+                        <div class="flex items-center gap-2.5">
+                            <div class="w-8 h-8 rounded-lg bg-amber-500/10 text-amber-400 flex items-center justify-center">
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4" />
+                                </svg>
+                            </div>
+                            <h2 class="text-base font-bold text-white">Project Milestones</h2>
+                        </div>
+                        <span class="text-xs font-mono text-slate-400" th:text="${milestones.size()} + ' total'">4 total</span>
+                    </div>
+
+                    <!-- Add Milestone Form -->
+                    <form th:action="@{/admin/projects/{id}/milestones(id=${project.id})}" method="post" class="mb-5 p-3.5 bg-slate-950/60 border border-slate-800 rounded-xl space-y-3">
+                        <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
+                        <div>
+                            <input type="text" name="title" placeholder="New milestone title (e.g., UI Architecture Review)..." required
+                                   class="w-full bg-slate-900 border border-slate-700/80 rounded-lg px-3 py-2 text-xs text-white placeholder-slate-500 focus:outline-none focus:ring-1 focus:ring-sky-500">
+                        </div>
+                        <div class="flex items-center gap-2">
+                            <input type="date" name="dueDate" required
+                                   class="flex-1 bg-slate-900 border border-slate-700/80 rounded-lg px-3 py-2 text-xs text-slate-300 focus:outline-none focus:ring-1 focus:ring-sky-500">
+                            <button type="submit" class="px-3.5 py-2 bg-amber-600 hover:bg-amber-500 text-white font-medium text-xs rounded-lg transition shadow">
+                                + Add Target
+                            </button>
+                        </div>
+                    </form>
+
+                    <!-- Milestone Items List -->
+                    <div class="space-y-2.5 flex-1 overflow-y-auto max-h-96">
+                        <div th:each="m : ${milestones}" class="p-3 bg-slate-950/40 border border-slate-800/80 rounded-xl flex items-center justify-between gap-3 hover:border-slate-700 transition">
+                            <div class="flex items-center gap-3 overflow-hidden">
+                                <!-- Status Toggle Form -->
+                                <form th:action="@{/admin/projects/{pId}/milestones/{mId}/toggle(pId=${project.id}, mId=${m.id})}" method="post">
+                                    <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
+                                    <button type="submit"
+                                            th:classappend="${m.completed} ? 'text-emerald-400 bg-emerald-500/20 border-emerald-500/40' : 'text-slate-500 bg-slate-800 border-slate-700 hover:text-slate-300'"
+                                            class="w-6 h-6 rounded-lg border flex items-center justify-center transition"
+                                            title="Toggle Completion">
+                                        <svg th:if="${m.completed}" class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7" />
+                                        </svg>
+                                    </button>
+                                </form>
+                                <div class="overflow-hidden">
+                                    <div class="text-xs font-semibold truncate text-slate-200"
+                                         th:classappend="${m.completed} ? 'line-through text-slate-500' : ''"
+                                         th:text="${m.title}">Milestone Title</div>
+                                    <div class="text-[10px] text-slate-400 font-mono" th:text="'Due: ' + ${m.dueDate != null ? m.dueDate : 'TBD'}">Due: 2026-09-30</div>
+                                </div>
+                            </div>
+                            <form th:action="@{/admin/projects/{pId}/milestones/{mId}/delete(pId=${project.id}, mId=${m.id})}" method="post">
+                                <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
+                                <button type="submit" class="text-slate-500 hover:text-rose-400 p-1 transition" title="Delete Milestone">
+                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                                    </svg>
+                                </button>
+                            </form>
+                        </div>
+                        <div th:if="${milestones.empty}" class="p-6 text-center text-xs text-slate-500">
+                            No milestones recorded yet. Add your first structural target above.
+                        </div>
+                    </div>
+                </section>
+
+                <!-- 2. Document Sharing & Storage Module -->
+                <section class="bg-slate-900/90 border border-slate-800/90 rounded-2xl shadow-xl p-6 flex flex-col">
+                    <div class="flex items-center justify-between mb-5">
+                        <div class="flex items-center gap-2.5">
+                            <div class="w-8 h-8 rounded-lg bg-indigo-500/10 text-indigo-400 flex items-center justify-center">
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z" />
+                                </svg>
+                            </div>
+                            <h2 class="text-base font-bold text-white">Document Repository</h2>
+                        </div>
+                        <span class="text-xs font-mono text-slate-400" th:text="${documents.size()} + ' files'">3 files</span>
+                    </div>
+
+                    <!-- Multipart File Upload Form -->
+                    <form th:action="@{/admin/projects/{id}/documents/upload(id=${project.id})}" method="post" enctype="multipart/form-data" class="mb-5 p-3.5 bg-slate-950/60 border border-slate-800 rounded-xl space-y-3">
+                        <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
+                        <div class="flex items-center gap-2">
+                            <input type="file" name="file" required
+                                   class="flex-1 text-xs text-slate-400 file:mr-3 file:py-1.5 file:px-3 file:rounded-lg file:border-0 file:text-xs file:font-semibold file:bg-slate-800 file:text-slate-300 hover:file:bg-slate-700 cursor-pointer">
+                            <button type="submit" class="px-3.5 py-2 bg-indigo-600 hover:bg-indigo-500 text-white font-medium text-xs rounded-lg transition shadow">
+                                Upload File
+                            </button>
+                        </div>
+                    </form>
+
+                    <!-- Documents List -->
+                    <div class="space-y-2.5 flex-1 overflow-y-auto max-h-96">
+                        <div th:each="doc : ${documents}" class="p-3 bg-slate-950/40 border border-slate-800/80 rounded-xl flex items-center justify-between gap-3 hover:border-slate-700 transition">
+                            <div class="flex items-center gap-3 overflow-hidden">
+                                <div class="w-8 h-8 rounded-lg bg-slate-800 flex items-center justify-center text-slate-400 flex-shrink-0">
+                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                                    </svg>
+                                </div>
+                                <div class="overflow-hidden">
+                                    <a th:href="@{/documents/download/{id}(id=${doc.id})}" class="text-xs font-semibold text-sky-400 hover:underline truncate block" th:text="${doc.fileName}">
+                                        Document.pdf
+                                    </a>
+                                    <div class="text-[10px] text-slate-400 font-mono mt-0.5">
+                                        <span th:text="${doc.formattedFileSize}">1.2 MB</span> &bull; <span th:text="${#temporals.format(doc.uploadedAt, 'yyyy-MM-dd HH:mm')}">2026-09-20</span>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="flex items-center gap-2">
+                                <a th:href="@{/documents/download/{id}(id=${doc.id})}" class="p-1.5 bg-slate-800 hover:bg-sky-600 hover:text-white rounded-lg text-slate-400 transition" title="Download Document">
+                                    <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
+                                    </svg>
+                                </a>
+                                <form th:action="@{/admin/projects/{pId}/documents/{docId}/delete(pId=${project.id}, docId=${doc.id})}" method="post">
+                                    <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
+                                    <button type="submit" class="text-slate-500 hover:text-rose-400 p-1.5 transition" title="Delete Document">
+                                        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                                        </svg>
+                                    </button>
+                                </form>
+                            </div>
+                        </div>
+                        <div th:if="${documents.empty}" class="p-6 text-center text-xs text-slate-500">
+                            No documents uploaded yet. Share contracts or architecture blueprints above.
+                        </div>
+                    </div>
+                </section>
+            </div>
+
+            <!-- 2.5 Communication & Project Discussion Stream -->
+            <section class="bg-slate-900/90 border border-slate-800/90 rounded-2xl shadow-xl p-6">
+                <div class="flex items-center justify-between mb-4">
+                    <div class="flex items-center gap-2.5">
+                        <div class="w-8 h-8 rounded-lg bg-sky-500/10 text-sky-400 flex items-center justify-center">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
+                            </svg>
+                        </div>
+                        <div>
+                            <h2 class="text-base font-bold text-white">Project Discussion &amp; Client Communication</h2>
+                            <p class="text-xs text-slate-400">Direct message channel between system admins and client stakeholders</p>
+                        </div>
+                    </div>
+                    <div class="text-xs font-mono text-slate-400">
+                        <span th:text="${messages != null ? messages.size() : 0}">0</span> updates on record
+                    </div>
+                </div>
+
+                <!-- Message History Feed -->
+                <div class="space-y-3 mb-5 max-h-96 overflow-y-auto pr-1">
+                    <div th:each="msg : ${messages}" class="p-4 rounded-xl border transition"
+                         th:classappend="${msg.author.role.name() == 'ADMIN'} ? 'bg-slate-950/70 border-sky-900/40 ml-4' : 'bg-slate-950/40 border-slate-800 mr-4'">
+                        <div class="flex items-center justify-between gap-2 mb-1.5">
+                            <div class="flex items-center gap-2">
+                                <span class="font-semibold text-xs text-white" th:text="${msg.author.name}">Author Name</span>
+                                <span class="px-2 py-0.5 rounded text-[10px] font-mono font-semibold"
+                                      th:classappend="${msg.author.role.name() == 'ADMIN'} ? 'bg-sky-500/20 text-sky-300' : 'bg-emerald-500/20 text-emerald-300'"
+                                      th:text="${msg.author.role}">ADMIN</span>
+                                <span class="text-[11px] text-slate-400" th:text="'(' + ${msg.author.company} + ')'">(Company)</span>
+                            </div>
+                            <span class="text-[10px] text-slate-500 font-mono" th:text="${msg.formattedCreatedAt}">Sep 22, 2026 14:00</span>
+                        </div>
+                        <p class="text-xs text-slate-300 leading-relaxed whitespace-pre-line" th:text="${msg.message}">Message body</p>
+                    </div>
+
+                    <div th:if="${messages == null or messages.empty}" class="p-6 text-center text-xs text-slate-500 bg-slate-950/30 rounded-xl border border-slate-800/60">
+                        No messages exchanged yet. Post the first update or question below.
+                    </div>
+                </div>
+
+                <!-- Post Update Form -->
+                <form th:action="@{/admin/projects/{id}/messages(id=${project.id})}" method="post" class="space-y-3">
+                    <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
+                    <div class="relative">
+                        <textarea name="message" rows="2" required placeholder="Write a message, project announcement, or status update to the client..."
+                                  class="w-full bg-slate-950/70 border border-slate-700/80 rounded-xl px-4 py-3 text-xs text-white placeholder-slate-500 focus:outline-none focus:ring-1 focus:ring-sky-500 transition shadow-inner"></textarea>
+                    </div>
+                    <div class="flex justify-end">
+                        <button type="submit" class="px-4 py-2 bg-sky-600 hover:bg-sky-500 text-white font-medium text-xs rounded-xl transition shadow flex items-center gap-1.5">
+                            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8" />
+                            </svg>
+                            <span>Post Communication Update</span>
+                        </button>
+                    </div>
+                </form>
+            </section>
+
+            <!-- 3. Invoicing & Financial Balance Engine -->
+            <section class="bg-slate-900/90 border border-slate-800/90 rounded-2xl shadow-xl p-6">
+                <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">
+                    <div class="flex items-center gap-2.5">
+                        <div class="w-8 h-8 rounded-lg bg-emerald-500/10 text-emerald-400 flex items-center justify-center">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 14l6-6m-5.5.5h.01m4.99 5h.01M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16l3.5-2 3.5 2 3.5-2 3.5 2zM10 8.5a.5.5 0 11-1 0 .5.5 0 011 0zm5 5a.5.5 0 11-1 0 .5.5 0 011 0z" />
+                            </svg>
+                        </div>
+                        <div>
+                            <h2 class="text-base font-bold text-white">Itemized Invoicing &amp; Project Balances</h2>
+                            <p class="text-xs text-slate-400">Track balance disbursements and operational contract billing</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Create Invoice Form -->
+                <form th:action="@{/admin/projects/{id}/invoices(id=${project.id})}" method="post" class="mb-6 p-4 bg-slate-950/60 border border-slate-800 rounded-xl grid grid-cols-1 sm:grid-cols-2 md:grid-cols-5 gap-3 items-end">
+                    <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
+                    <div>
+                        <label class="block text-[11px] font-semibold text-slate-400 uppercase mb-1">Amount ($ USD)</label>
+                        <input type="number" step="0.01" min="0.01" name="amount" placeholder="5000.00" required
+                               class="w-full bg-slate-900 border border-slate-700/80 rounded-lg px-3 py-2 text-xs text-white focus:outline-none focus:ring-1 focus:ring-emerald-500">
+                    </div>
+                    <div>
+                        <label class="block text-[11px] font-semibold text-slate-400 uppercase mb-1">Status</label>
+                        <select name="status" class="w-full bg-slate-900 border border-slate-700/80 rounded-lg px-3 py-2 text-xs text-white focus:outline-none focus:ring-1 focus:ring-emerald-500">
+                            <option th:each="st : ${invoiceStatuses}" th:value="${st}" th:text="${st.displayName}">UNPAID</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-[11px] font-semibold text-slate-400 uppercase mb-1">Issue Date</label>
+                        <input type="date" name="issueDate" required
+                               class="w-full bg-slate-900 border border-slate-700/80 rounded-lg px-3 py-2 text-xs text-slate-300 focus:outline-none focus:ring-1 focus:ring-emerald-500">
+                    </div>
+                    <div>
+                        <label class="block text-[11px] font-semibold text-slate-400 uppercase mb-1">Due Date</label>
+                        <input type="date" name="dueDate" required
+                               class="w-full bg-slate-900 border border-slate-700/80 rounded-lg px-3 py-2 text-xs text-slate-300 focus:outline-none focus:ring-1 focus:ring-emerald-500">
+                    </div>
+                    <div>
+                        <button type="submit" class="w-full py-2 bg-emerald-600 hover:bg-emerald-500 text-white font-medium text-xs rounded-lg transition shadow">
+                            + Generate Invoice
+                        </button>
+                    </div>
+                </form>
+
+                <!-- Invoices Table -->
+                <div class="overflow-x-auto">
+                    <table class="w-full text-left border-collapse text-xs">
+                        <thead>
+                            <tr class="border-b border-slate-800 bg-slate-950/40 text-slate-400 uppercase tracking-wider">
+                                <th class="py-3 px-4 font-semibold">Invoice Ref</th>
+                                <th class="py-3 px-4 font-semibold">Amount</th>
+                                <th class="py-3 px-4 font-semibold">Status</th>
+                                <th class="py-3 px-4 font-semibold">Issue Date</th>
+                                <th class="py-3 px-4 font-semibold">Due Date</th>
+                                <th class="py-3 px-4 font-semibold text-right">Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody class="divide-y divide-slate-800/60 text-slate-300">
+                            <tr th:each="inv : ${invoices}" class="hover:bg-slate-800/30 transition">
+                                <td class="py-3.5 px-4 font-mono font-semibold text-white" th:text="'INV-' + ${inv.id} + '-' + ${project.id}">INV-1-1</td>
+                                <td class="py-3.5 px-4 font-mono font-bold text-white" th:text="'$' + ${#numbers.formatDecimal(inv.amount, 1, 'COMMA', 2, 'POINT')}">$14,500.00</td>
+                                <td class="py-3.5 px-4">
+                                    <span class="inline-flex items-center px-2 py-0.5 rounded-full font-medium border"
+                                          th:classappend="${inv.status.badgeClass}"
+                                          th:text="${inv.status.displayName}">
+                                        UNPAID
+                                    </span>
+                                </td>
+                                <td class="py-3.5 px-4 font-mono text-slate-400" th:text="${inv.issueDate}">2026-09-01</td>
+                                <td class="py-3.5 px-4 font-mono text-slate-400" th:text="${inv.dueDate}">2026-09-30</td>
+                                <td class="py-3.5 px-4 text-right">
+                                    <div class="flex items-center justify-end gap-2">
+                                        <!-- Update Status Dropdown / Form -->
+                                        <form th:action="@{/admin/projects/{pId}/invoices/{invId}/status(pId=${project.id}, invId=${inv.id})}" method="post" class="inline">
+                                            <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
+                                            <select name="status" onchange="this.form.submit()" class="bg-slate-800 border border-slate-700 text-slate-300 text-[11px] rounded px-2 py-1 focus:outline-none">
+                                                <option th:each="st : ${invoiceStatuses}" th:value="${st}" th:text="${st.displayName}" th:selected="${st == inv.status}"></option>
+                                            </select>
+                                        </form>
+                                        <!-- Delete Invoice -->
+                                        <form th:action="@{/admin/projects/{pId}/invoices/{invId}/delete(pId=${project.id}, invId=${inv.id})}" method="post" onsubmit="return confirm('Delete this invoice entry?');" class="inline">
+                                            <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
+                                            <button type="submit" class="p-1 text-slate-500 hover:text-rose-400 transition" title="Delete">
+                                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                                                </svg>
+                                            </button>
+                                        </form>
+                                    </div>
+                                </td>
+                            </tr>
+                            <tr th:if="${invoices.empty}">
+                                <td colspan="6" class="py-6 text-center text-slate-500">
+                                    No invoices issued for this project space yet.
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </section>
+
+        </div>
+    </main>
+</body>
+</html>

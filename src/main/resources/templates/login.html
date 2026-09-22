@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Enterprise Portal & Project Management | Login</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        brand: {
+                            50: '#f0f9ff',
+                            100: '#e0f2fe',
+                            500: '#0284c7',
+                            600: '#0369a1',
+                            700: '#075985',
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        body { font-family: 'Inter', sans-serif; }
+    </style>
+</head>
+<body class="bg-slate-950 text-slate-100 min-h-screen flex items-center justify-center p-4 relative overflow-hidden">
+
+    <!-- Ambient Gradient Background Shapes -->
+    <div class="absolute -top-40 -right-40 w-96 h-96 bg-blue-600/10 rounded-full blur-3xl pointer-events-none"></div>
+    <div class="absolute -bottom-40 -left-40 w-96 h-96 bg-sky-500/10 rounded-full blur-3xl pointer-events-none"></div>
+
+    <div class="w-full max-w-md relative z-10">
+        <!-- Logo & Header -->
+        <div class="text-center mb-8">
+            <div class="inline-flex items-center justify-center w-14 h-14 rounded-2xl bg-gradient-to-tr from-sky-600 to-blue-500 text-white shadow-lg shadow-sky-500/25 mb-4">
+                <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
+                </svg>
+            </div>
+            <h1 class="text-2xl font-bold tracking-tight text-white">Client Portal &amp; Projects</h1>
+            <p class="text-sm text-slate-400 mt-1">Enterprise Operations Workspace <span class="text-xs text-sky-400 font-mono font-medium">(JV-CRM-005)</span></p>
+        </div>
+
+        <!-- Card Container -->
+        <div class="bg-slate-900/90 backdrop-blur-xl border border-slate-800 shadow-2xl rounded-2xl p-8">
+
+            <!-- Conditional Error Alert -->
+            <div th:if="${errorMessage}" class="mb-5 flex items-center gap-3 p-3.5 bg-rose-500/10 border border-rose-500/30 rounded-xl text-rose-400 text-sm">
+                <svg class="w-5 h-5 flex-shrink-0 text-rose-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+                </svg>
+                <span th:text="${errorMessage}">Invalid credentials</span>
+            </div>
+
+            <!-- Conditional Logout Alert -->
+            <div th:if="${logoutMessage}" class="mb-5 flex items-center gap-3 p-3.5 bg-emerald-500/10 border border-emerald-500/30 rounded-xl text-emerald-400 text-sm">
+                <svg class="w-5 h-5 flex-shrink-0 text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
+                <span th:text="${logoutMessage}">You have been logged out</span>
+            </div>
+
+            <!-- Form -->
+            <form th:action="@{/login}" method="post" class="space-y-5">
+                <!-- CSRF Token -->
+                <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
+
+                <!-- Email Input -->
+                <div>
+                    <label for="username" class="block text-xs font-semibold uppercase tracking-wider text-slate-300 mb-2">Corporate Email</label>
+                    <div class="relative">
+                        <div class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-500">
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M16 12a4 4 0 10-8 0 4 4 0 008 0zm0 0v1.5a2.5 2.5 0 005 0V12a9 9 0 10-9 9m4.5-1.206a8.959 8.959 0 01-4.5 1.207" />
+                            </svg>
+                        </div>
+                        <input type="email" id="username" name="username" required
+                               placeholder="user@portal.com"
+                               class="w-full bg-slate-950/70 border border-slate-700/80 rounded-xl pl-11 pr-4 py-3 text-sm text-white placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-sky-500 focus:border-sky-500 transition shadow-inner">
+                    </div>
+                </div>
+
+                <!-- Password Input -->
+                <div>
+                    <div class="flex items-center justify-between mb-2">
+                        <label for="password" class="block text-xs font-semibold uppercase tracking-wider text-slate-300">Access Key / Password</label>
+                    </div>
+                    <div class="relative">
+                        <div class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-500">
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
+                            </svg>
+                        </div>
+                        <input type="password" id="password" name="password" required
+                               placeholder="••••••••"
+                               class="w-full bg-slate-950/70 border border-slate-700/80 rounded-xl pl-11 pr-4 py-3 text-sm text-white placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-sky-500 focus:border-sky-500 transition shadow-inner">
+                    </div>
+                </div>
+
+                <!-- Submit Button -->
+                <button type="submit"
+                        class="w-full py-3.5 px-4 bg-gradient-to-r from-sky-500 to-blue-600 hover:from-sky-400 hover:to-blue-500 text-white font-medium rounded-xl shadow-lg shadow-sky-600/30 transition transform active:scale-[0.99] flex items-center justify-center gap-2">
+                    <span>Authenticate to Portal</span>
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3" />
+                    </svg>
+                </button>
+            </form>
+
+            <!-- Quick Demo Credentials Box -->
+            <div class="mt-8 pt-6 border-t border-slate-800">
+                <p class="text-xs text-slate-400 font-medium mb-3 text-center">Quick Profile Selection (Pre-seeded Demo)</p>
+                <div class="grid grid-cols-2 gap-2.5">
+                    <button type="button" onclick="fillCredentials('admin@portal.com', 'admin123')"
+                            class="p-2.5 bg-slate-800/60 hover:bg-slate-800 border border-slate-700/70 rounded-xl text-left transition group">
+                        <div class="flex items-center justify-between">
+                            <span class="text-xs font-semibold text-sky-400">Admin Role</span>
+                            <span class="text-[10px] uppercase font-mono px-1.5 py-0.5 rounded bg-sky-500/20 text-sky-300">ADMIN</span>
+                        </div>
+                        <p class="text-[11px] text-slate-400 mt-1 truncate">admin@portal.com</p>
+                    </button>
+
+                    <button type="button" onclick="fillCredentials('client@techretail.com', 'client123')"
+                            class="p-2.5 bg-slate-800/60 hover:bg-slate-800 border border-slate-700/70 rounded-xl text-left transition group">
+                        <div class="flex items-center justify-between">
+                            <span class="text-xs font-semibold text-emerald-400">Client Role</span>
+                            <span class="text-[10px] uppercase font-mono px-1.5 py-0.5 rounded bg-emerald-500/20 text-emerald-300">CLIENT</span>
+                        </div>
+                        <p class="text-[11px] text-slate-400 mt-1 truncate">client@techretail.com</p>
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <p class="text-center text-xs text-slate-500 mt-6">
+            Spring Boot 3.3.4 &bull; Hibernate 6 &bull; MySQL 8.x &bull; Spring Security 6
+        </p>
+    </div>
+
+    <script>
+        function fillCredentials(email, password) {
+            document.getElementById('username').value = email;
+            document.getElementById('password').value = password;
+        }
+    </script>
+</body>
+</html>

@@ -1,0 +1,359 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Client Portal Workspace | Projects & Invoices</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        body { font-family: 'Inter', sans-serif; }
+    </style>
+</head>
+<body class="bg-slate-950 text-slate-100 flex min-h-screen overflow-x-hidden">
+
+    <!-- Modular Sidebar -->
+    <div th:replace="~{layout/sidebar :: sidebar('client_dashboard')}"></div>
+
+    <!-- Main Client Content Area -->
+    <main class="flex-1 flex flex-col min-w-0 overflow-y-auto bg-slate-950">
+
+        <!-- Top Header Bar -->
+        <header class="h-16 px-8 border-b border-slate-800 flex items-center justify-between bg-slate-900/60 backdrop-blur-md sticky top-0 z-20">
+            <div>
+                <h1 class="text-base font-bold text-white tracking-tight">Client Executive Workspace</h1>
+                <p class="text-xs text-slate-400">Authenticated Enterprise Tenant: <span class="text-emerald-400 font-semibold" th:text="${client.company}">TechRetail Inc.</span></p>
+            </div>
+            <div class="flex items-center gap-2">
+                <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold bg-emerald-500/10 text-emerald-400 border border-emerald-500/30">
+                    <span class="w-2 h-2 rounded-full bg-emerald-400"></span>
+                    <span>Verified Client Session</span>
+                </span>
+            </div>
+        </header>
+
+        <div class="p-8 space-y-8 flex-1">
+
+            <!-- Welcome Client Banner -->
+            <div class="p-6 bg-gradient-to-r from-slate-900 via-slate-900/90 to-sky-950/40 border border-slate-800 rounded-2xl shadow-xl flex flex-col md:flex-row md:items-center justify-between gap-4">
+                <div>
+                    <h2 class="text-xl font-extrabold text-white">Welcome, <span th:text="${client.name}">Marcus Sterling</span></h2>
+                    <p class="text-xs text-slate-400 mt-1 max-w-xl">
+                        This is your dedicated, secure portal for monitoring project roadmaps, inspecting milestone deliveries, downloading specifications, and reviewing financial balances for <span class="text-slate-200 font-medium" th:text="${client.company}">TechRetail Inc.</span>
+                    </p>
+                </div>
+                <div class="flex items-center gap-4 text-xs">
+                    <div class="p-3 bg-slate-950/70 border border-slate-800 rounded-xl">
+                        <div class="text-[10px] uppercase font-semibold text-slate-500">Corporate Account</div>
+                        <div class="font-mono text-slate-200 font-semibold" th:text="${client.email}">client@techretail.com</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Client KPI Metrics Grid -->
+            <section class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-5">
+                <!-- KPI 1: Active Engagements -->
+                <div class="p-5 bg-slate-900/90 border border-slate-800/90 rounded-2xl shadow-xl">
+                    <div class="flex items-center justify-between mb-3">
+                        <span class="text-xs font-semibold uppercase tracking-wider text-slate-400">Your Projects</span>
+                        <div class="w-8 h-8 rounded-xl bg-sky-500/10 text-sky-400 flex items-center justify-center">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" />
+                            </svg>
+                        </div>
+                    </div>
+                    <div class="text-3xl font-black text-white" th:text="${projects.size()}">1</div>
+                    <p class="text-xs text-slate-400 mt-2">Dedicated engagements</p>
+                </div>
+
+                <!-- KPI 2: Overall Milestone Progress -->
+                <div class="p-5 bg-slate-900/90 border border-slate-800/90 rounded-2xl shadow-xl">
+                    <div class="flex items-center justify-between mb-3">
+                        <span class="text-xs font-semibold uppercase tracking-wider text-slate-400">Milestone Velocity</span>
+                        <div class="w-8 h-8 rounded-xl bg-amber-500/10 text-amber-400 flex items-center justify-center">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4" />
+                            </svg>
+                        </div>
+                    </div>
+                    <div class="text-3xl font-black text-white" th:text="${overallProgress} + '%'">50%</div>
+                    <div class="w-full bg-slate-800 h-1.5 rounded-full overflow-hidden mt-3">
+                        <div class="bg-amber-400 h-full transition-all" th:style="'width: ' + ${overallProgress} + '%;'"></div>
+                    </div>
+                </div>
+
+                <!-- KPI 3: Total Paid -->
+                <div class="p-5 bg-slate-900/90 border border-slate-800/90 rounded-2xl shadow-xl">
+                    <div class="flex items-center justify-between mb-3">
+                        <span class="text-xs font-semibold uppercase tracking-wider text-slate-400">Settled Payments</span>
+                        <div class="w-8 h-8 rounded-xl bg-emerald-500/10 text-emerald-400 flex items-center justify-center">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+                            </svg>
+                        </div>
+                    </div>
+                    <div class="text-2xl font-black text-white font-mono" th:text="'$' + ${#numbers.formatDecimal(totalPaid, 1, 'COMMA', 2, 'POINT')}">$14,500.00</div>
+                    <p class="text-xs text-emerald-400 mt-2">Disbursed &amp; credited</p>
+                </div>
+
+                <!-- KPI 4: Outstanding Balance -->
+                <div class="p-5 bg-slate-900/90 border border-slate-800/90 rounded-2xl shadow-xl">
+                    <div class="flex items-center justify-between mb-3">
+                        <span class="text-xs font-semibold uppercase tracking-wider text-slate-400">Balance Due</span>
+                        <div class="w-8 h-8 rounded-xl bg-rose-500/10 text-rose-400 flex items-center justify-center">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                            </svg>
+                        </div>
+                    </div>
+                    <div class="text-2xl font-black text-rose-400 font-mono" th:text="'$' + ${#numbers.formatDecimal(totalOutstanding, 1, 'COMMA', 2, 'POINT')}">$31,392.00</div>
+                    <p class="text-xs text-slate-400 mt-2">Pending verification/due</p>
+                </div>
+            </section>
+
+            <!-- Projects & Milestones Breakdown -->
+            <section class="space-y-6">
+                <h3 class="text-base font-bold text-white tracking-tight">Active Projects &amp; Deliverables</h3>
+
+                <div th:each="p : ${projects}" class="bg-slate-900/90 border border-slate-800/90 rounded-2xl shadow-xl p-6 space-y-6">
+                    <!-- Project Header -->
+                    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-slate-800 pb-5">
+                        <div>
+                            <div class="flex items-center gap-3">
+                                <h4 class="text-lg font-bold text-white" th:text="${p.title}">Omnichannel POS Cloud Modernization</h4>
+                                <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium border"
+                                      th:classappend="${p.status.badgeClass}"
+                                      th:text="${p.status.displayName}">
+                                    In Progress
+                                </span>
+                            </div>
+                            <p class="text-xs text-slate-400 mt-1.5 max-w-3xl leading-relaxed" th:text="${p.description}">
+                                Project description excerpt
+                            </p>
+                        </div>
+                        <div class="text-right flex-shrink-0">
+                            <div class="text-xs font-mono text-slate-400">
+                                <span th:text="${p.startDate}">2026-08-01</span> &rarr; <span th:text="${p.endDate}">2026-10-30</span>
+                            </div>
+                            <div class="text-xs font-semibold text-sky-400 mt-1" th:text="${p.progressPercentage} + '% Completed'">
+                                50% Completed
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Progress Bar -->
+                    <div>
+                        <div class="w-full bg-slate-800 h-2 rounded-full overflow-hidden">
+                            <div class="bg-gradient-to-r from-sky-500 to-emerald-500 h-full transition-all" th:style="'width: ' + ${p.progressPercentage} + '%;'"></div>
+                        </div>
+                    </div>
+
+                    <!-- Predictive Delivery Outlook (ML Velocity Model) -->
+                    <div th:each="fc : ${forecasts}" th:if="${fc.projectId == p.id}"
+                         class="p-4 bg-slate-950/70 border border-slate-800 rounded-xl flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                        <div class="flex items-center gap-3">
+                            <div class="w-8 h-8 rounded-lg bg-sky-500/10 text-sky-400 flex items-center justify-center flex-shrink-0">
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z" />
+                                </svg>
+                            </div>
+                            <div>
+                                <div class="flex items-center gap-2">
+                                    <span class="text-xs font-semibold text-white">Projected Delivery:</span>
+                                    <span class="text-xs font-mono font-bold text-sky-400" th:text="${fc.projectedEndDate}">2026-11-05</span>
+                                    <span class="inline-flex items-center px-2 py-0.2 rounded-full text-[10px] font-bold border font-mono"
+                                          th:classappend="${fc.riskBadgeClass}"
+                                          th:text="${fc.slippageDays <= 0} ? 'ON TRACK' : '+' + ${fc.slippageDays} + 'D VARIANCE'">
+                                        ON TRACK
+                                    </span>
+                                </div>
+                                <p class="text-[11px] text-slate-400 mt-0.5" th:text="${fc.recommendation}">AI timeline projection guidance</p>
+                            </div>
+                        </div>
+                        <div class="text-right flex-shrink-0 text-xs font-mono text-slate-400">
+                            <span>Burn Velocity: </span>
+                            <span class="text-slate-200 font-semibold" th:text="${fc.milestoneVelocityDays} + ' days/milestone'">15.0 days/milestone</span>
+                        </div>
+                    </div>
+
+                    <!-- Grid: Milestones & Documents for this Project -->
+                    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 pt-2">
+
+                        <!-- Milestones Checklist -->
+                        <div class="p-4 bg-slate-950/50 border border-slate-800/80 rounded-xl">
+                            <h5 class="text-xs font-bold uppercase tracking-wider text-slate-400 mb-3 flex items-center gap-2">
+                                <svg class="w-4 h-4 text-amber-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
+                                </svg>
+                                <span>Milestones &amp; Targets</span>
+                            </h5>
+                            <div class="space-y-2">
+                                <div th:each="m : ${p.milestones}" class="flex items-center justify-between p-2.5 bg-slate-900/60 rounded-lg border border-slate-800/60 text-xs">
+                                    <div class="flex items-center gap-2.5">
+                                        <div th:if="${m.completed}" class="w-5 h-5 rounded-full bg-emerald-500/20 text-emerald-400 flex items-center justify-center flex-shrink-0">
+                                            <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7" />
+                                            </svg>
+                                        </div>
+                                        <div th:unless="${m.completed}" class="w-5 h-5 rounded-full bg-slate-800 text-slate-500 flex items-center justify-center flex-shrink-0">
+                                            <circle cx="12" cy="12" r="8" stroke="currentColor" stroke-width="2" fill="none" />
+                                        </div>
+                                        <span class="font-medium" th:classappend="${m.completed} ? 'text-slate-200' : 'text-slate-400'" th:text="${m.title}">Milestone title</span>
+                                    </div>
+                                    <span class="text-[10px] font-mono text-slate-500" th:text="'Due: ' + ${m.dueDate}">2026-09-30</span>
+                                </div>
+                                <div th:if="${p.milestones.empty}" class="text-xs text-slate-500 py-3 text-center">
+                                    No milestones tracked for this project yet.
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Documents Library for this Project -->
+                        <div class="p-4 bg-slate-950/50 border border-slate-800/80 rounded-xl">
+                            <h5 class="text-xs font-bold uppercase tracking-wider text-slate-400 mb-3 flex items-center gap-2">
+                                <svg class="w-4 h-4 text-indigo-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z" />
+                                </svg>
+                                <span>Shared Assets &amp; Deliverables</span>
+                            </h5>
+                            <div class="space-y-2 mb-3">
+                                <div th:each="doc : ${p.documents}" class="flex items-center justify-between p-2.5 bg-slate-900/60 rounded-lg border border-slate-800/60 text-xs">
+                                    <div class="overflow-hidden pr-2">
+                                        <div class="font-semibold text-slate-200 truncate" th:text="${doc.fileName}">Specification.pdf</div>
+                                        <div class="text-[10px] text-slate-500 font-mono" th:text="${doc.formattedFileSize} + ' &bull; ' + ${#temporals.format(doc.uploadedAt, 'yyyy-MM-dd')}">1.2 MB &bull; 2026-09-20</div>
+                                    </div>
+                                    <a th:href="@{/documents/download/{id}(id=${doc.id})}"
+                                       class="px-2.5 py-1 bg-sky-600/20 hover:bg-sky-600 text-sky-400 hover:text-white border border-sky-500/30 rounded-lg text-xs font-medium transition flex items-center gap-1 flex-shrink-0">
+                                        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
+                                        </svg>
+                                        <span>Download</span>
+                                    </a>
+                                </div>
+                                <div th:if="${p.documents.empty}" class="text-xs text-slate-500 py-3 text-center">
+                                    No shared documents available for this project yet.
+                                </div>
+                            </div>
+
+                            <!-- Client Upload Form -->
+                            <form th:action="@{/clients/projects/{id}/documents/upload(id=${p.id})}" method="post" enctype="multipart/form-data" class="pt-3 border-t border-slate-800/70 flex items-center gap-2">
+                                <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
+                                <input type="file" name="file" required class="text-xs text-slate-400 file:mr-2 file:py-1 file:px-2.5 file:rounded-lg file:border-0 file:text-xs file:font-semibold file:bg-slate-800 file:text-sky-400 hover:file:bg-slate-700 w-full cursor-pointer">
+                                <button type="submit" class="px-3 py-1.5 bg-indigo-600 hover:bg-indigo-500 text-white rounded-lg text-xs font-medium transition flex items-center gap-1 flex-shrink-0">
+                                    <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l4-4m0 0l4 4m-4-4v12" />
+                                    </svg>
+                                    <span>Upload</span>
+                                </button>
+                            </form>
+                        </div>
+
+                    </div>
+
+                    <!-- Project Discussion & Communication Channel -->
+                    <div class="p-4 bg-slate-950/50 border border-slate-800/80 rounded-xl">
+                        <div class="flex items-center justify-between mb-3">
+                            <h5 class="text-xs font-bold uppercase tracking-wider text-slate-400 flex items-center gap-2">
+                                <svg class="w-4 h-4 text-sky-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
+                                </svg>
+                                <span>Project Communication &amp; Feedback</span>
+                            </h5>
+                            <span class="text-[10px] text-slate-500 font-mono" th:text="${p.messages != null ? p.messages.size() : 0} + ' messages'">0 messages</span>
+                        </div>
+
+                        <!-- Messages Thread -->
+                        <div class="space-y-2.5 mb-4 max-h-60 overflow-y-auto pr-1">
+                            <div th:each="msg : ${p.messages}" class="p-3 rounded-xl border text-xs"
+                                 th:classappend="${msg.author.role.name() == 'ADMIN'} ? 'bg-slate-900/80 border-sky-900/40 ml-3' : 'bg-slate-900/40 border-slate-800 mr-3'">
+                                <div class="flex items-center justify-between gap-2 mb-1">
+                                    <div class="flex items-center gap-1.5">
+                                        <span class="font-semibold text-white" th:text="${msg.author.name}">Author Name</span>
+                                        <span class="px-1.5 py-0.5 rounded text-[9px] font-mono font-semibold"
+                                              th:classappend="${msg.author.role.name() == 'ADMIN'} ? 'bg-sky-500/20 text-sky-300' : 'bg-emerald-500/20 text-emerald-300'"
+                                              th:text="${msg.author.role}">ROLE</span>
+                                    </div>
+                                    <span class="text-[10px] text-slate-500 font-mono" th:text="${msg.formattedCreatedAt}">Date</span>
+                                </div>
+                                <p class="text-slate-300 leading-relaxed whitespace-pre-line" th:text="${msg.message}">Message</p>
+                            </div>
+                            <div th:if="${p.messages == null or p.messages.empty}" class="text-xs text-slate-500 py-3 text-center">
+                                No messages exchanged yet. Send an update or question to the project managers below.
+                            </div>
+                        </div>
+
+                        <!-- Post Message Form -->
+                        <form th:action="@{/clients/projects/{id}/messages(id=${p.id})}" method="post" class="flex gap-2">
+                            <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
+                            <input type="text" name="message" required placeholder="Type a question, requirement clarification, or project note..."
+                                   class="flex-1 bg-slate-900 border border-slate-700/80 rounded-xl px-3 py-2 text-xs text-white placeholder-slate-500 focus:outline-none focus:ring-1 focus:ring-sky-500 transition shadow-inner">
+                            <button type="submit" class="px-4 py-2 bg-sky-600 hover:bg-sky-500 text-white font-medium text-xs rounded-xl transition shadow flex items-center gap-1.5 flex-shrink-0">
+                                <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8" />
+                                </svg>
+                                <span>Send</span>
+                            </button>
+                        </form>
+                    </div>
+                </div>
+
+                <div th:if="${projects.empty}" class="p-8 text-center text-slate-500 bg-slate-900/90 rounded-2xl border border-slate-800">
+                    No projects have been assigned to your organization yet.
+                </div>
+            </section>
+
+            <!-- Dedicated Invoices & Balances Section -->
+            <section class="bg-slate-900/90 border border-slate-800/90 rounded-2xl shadow-xl p-6">
+                <div class="flex items-center justify-between mb-5">
+                    <div>
+                        <h3 class="text-base font-bold text-white tracking-tight">Financial Invoices &amp; Balances</h3>
+                        <p class="text-xs text-slate-400">Transparent statement of accounts linked to your client profile</p>
+                    </div>
+                    <div class="text-xs font-mono text-slate-400" th:text="${invoices.size()} + ' invoices on record'">
+                        3 invoices on record
+                    </div>
+                </div>
+
+                <div class="overflow-x-auto">
+                    <table class="w-full text-left border-collapse text-xs">
+                        <thead>
+                            <tr class="border-b border-slate-800 bg-slate-950/40 text-slate-400 uppercase tracking-wider">
+                                <th class="py-3 px-4 font-semibold">Reference</th>
+                                <th class="py-3 px-4 font-semibold">Project Space</th>
+                                <th class="py-3 px-4 font-semibold">Amount ($ USD)</th>
+                                <th class="py-3 px-4 font-semibold">Status</th>
+                                <th class="py-3 px-4 font-semibold">Issue Date</th>
+                                <th class="py-3 px-4 font-semibold">Due Date</th>
+                            </tr>
+                        </thead>
+                        <tbody class="divide-y divide-slate-800/60 text-slate-300">
+                            <tr th:each="inv : ${invoices}" class="hover:bg-slate-800/30 transition">
+                                <td class="py-3.5 px-4 font-mono font-semibold text-white" th:text="'INV-' + ${inv.id} + '-' + ${inv.project.id}">INV-101</td>
+                                <td class="py-3.5 px-4 text-slate-200" th:text="${inv.project.title}">Omnichannel POS Modernization</td>
+                                <td class="py-3.5 px-4 font-mono font-bold text-white" th:text="'$' + ${#numbers.formatDecimal(inv.amount, 1, 'COMMA', 2, 'POINT')}">$14,500.00</td>
+                                <td class="py-3.5 px-4">
+                                    <span class="inline-flex items-center px-2 py-0.5 rounded-full font-medium border"
+                                          th:classappend="${inv.status.badgeClass}"
+                                          th:text="${inv.status.displayName}">
+                                        PAID
+                                    </span>
+                                </td>
+                                <td class="py-3.5 px-4 font-mono text-slate-400" th:text="${inv.issueDate}">2026-09-01</td>
+                                <td class="py-3.5 px-4 font-mono text-slate-400" th:text="${inv.dueDate}">2026-09-30</td>
+                            </tr>
+                            <tr th:if="${invoices.empty}">
+                                <td colspan="6" class="py-6 text-center text-slate-500">
+                                    No billing records currently associated with your account.
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </section>
+
+        </div>
+    </main>
+</body>
+</html>
