@@ -1,1 +1,129 @@
+name: Client Portal CI/CD Deployment
 
+on:
+  push:
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
+  workflow_dispatch:
+
+permissions:
+  contents: write
+  packages: write
+
+jobs:
+  build-and-test:
+    name: Build & Test (Java 21 / Maven)
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Source Code
+        uses: actions/checkout@v4
+
+      - name: Set up JDK 21 (Eclipse Temurin)
+        uses: actions/setup-java@v4
+        with:
+          java-version: '21'
+          distribution: 'temurin'
+          cache: 'maven'
+
+      - name: Compile and Run Automated Tests
+        run: mvn clean verify -B
+
+      - name: Upload Executable JAR Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: client-portal-executable-jar
+          path: target/client-portal-1.0.0.jar
+          if-no-files-found: error
+          retention-days: 14
+
+  docker-publish:
+    name: Build & Deploy Container to GHCR
+    needs: build-and-test
+    if: github.ref == 'refs/heads/main' && (github.event_name == 'push' || github.event_name == 'workflow_dispatch')
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Source Code
+        uses: actions/checkout@v4
+
+      - name: Set up QEMU for Multi-Platform Emulation
+        uses: docker/setup-qemu-action@v3
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Log in to GitHub Container Registry (ghcr.io)
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Extract Docker Image Metadata
+        id: meta
+        uses: docker/metadata-action@v5
+        with:
+          images: ghcr.io/${{ github.repository }}
+          tags: |
+            type=raw,value=latest,enable=${{ github.ref == 'refs/heads/main' }}
+            type=sha,format=short,prefix=sha-
+            type=ref,event=branch
+            type=semver,pattern={{version}}
+
+      - name: Build & Push Docker Container Image
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          file: ./Dockerfile
+          push: true
+          tags: ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+
+  create-release:
+    name: Publish GitHub Release
+    needs: [build-and-test, docker-publish]
+    if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Download Built JAR Artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: client-portal-executable-jar
+          path: release-artifacts/
+
+      - name: Create GitHub Release with Standalone Fat JAR
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: v1.0.${{ github.run_number }}
+          name: Enterprise Client Portal v1.0.${{ github.run_number }}
+          body: |
+            ### 🚀 Enterprise Client Portal & Project Management (JV-CRM-005)
+            
+            **Automated CI/CD Build #${{ github.run_number }}**
+            - **Commit**: `${{ github.sha }}`
+            - **Branch**: `${{ github.ref_name }}`
+            - **Docker Container**: `ghcr.io/${{ github.repository }}:latest`
+            
+            #### 📦 Download and Run Locally:
+            ```bash
+            java -jar client-portal-1.0.0.jar
+            ```
+            
+            #### 🐳 Run with Docker:
+            ```bash
+            docker pull ghcr.io/${{ github.repository }}:latest
+            docker run -p 8080:8080 ghcr.io/${{ github.repository }}:latest
+            ```
+          files: release-artifacts/client-portal-1.0.0.jar
+          draft: false
+          prerelease: false
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
